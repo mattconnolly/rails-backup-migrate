@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Matt Connolly"]
   s.email       = ["matt@soundevolution.com.au"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Backup and restore a rails application to YML files}
+  s.description = %q{Creates a directory db/backup in the rails app and creates / loads YML files from there.}
 
   s.rubyforge_project = "db-backup"
 
