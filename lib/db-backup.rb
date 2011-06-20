@@ -1,7 +1,6 @@
 require "db-backup/version"
 
-module Db
-  module Backup
-    # Your code goes here...
-  end
+if defined?(Rake)
+  rake_files = Dir["#{File.dirname(__FILE__)}/tasks/*.rake"]
+  rake_files.each { |file| load file }
 end
