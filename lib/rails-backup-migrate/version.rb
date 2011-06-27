@@ -1,5 +1,3 @@
-module Db
-  module Backup
-    VERSION = "0.0.2"
-  end
+module RailsBackupMigrate
+  VERSION = "0.0.3"
 end
