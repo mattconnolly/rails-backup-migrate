@@ -1,0 +1,42 @@
+h1. Rails Backup Migrate
+
+A gem that provides a rake task for backing up your database and uploaded files to an archive and restoring them from an archive.
+
+You can archive schema, schema+data, files, or schema+data+files. Each archive action has a restore counterpart. The data from the database is backed up to a .yml file for each table that is database independent.
+
+So you can use Rails Backup Migrate to get data out of one kind of database and easily load it into another kind.
+
+h2. Quick Start
+
+Installing the gem:
+
+<pre><code>  $ gem install rails-backup-migrate</code></pre>
+
+Add the following line to your rails application's Rakefile
+<pre><code>  require 'rails-backup-migrate'</code></pre>
+
+To backup everything in a rails instance:
+<pre><code>  $ rake site:backup</code></pre>
+
+Everything is saved in an archive file, named by default 'site-backup.tgz'. Copy/move this to another rails instance
+<pre><code>  $ rake site:restore</code></pre>
+
+h2. More info
+
+The backup file can be specified with a command line argument in rake's (wierd) format:
+
+<pre></code>  $ rake site:backup[/path/to/file.tgz]</code></pre>
+
+h2. Compatibility
+
+Tested initially on 'redmine' using rails 2.3.11 and some simpler tests with rails 3. Has been tested with MySQL and Sqlite3 databases. Further testing with postgres to be done.
+
+h2. Contributors
+
+Matt Connolly - main author of gem
+Tobias Lütke - wrote a `"backup.rake":http://blog.leetsoft.com/2006/5/29/easy-migration-between-databases` file that inspired the database backup portion. 
+
+h2. License
+
+GPL(General Public License) - See LICENSE
+
