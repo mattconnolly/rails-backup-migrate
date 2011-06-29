@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.description = %q{Creates a directory db/backup in the rails app and creates / loads YML files from there. 
     After a backup, the db/backups directory is archived into a .tgz file and then deleted.
     When restoring, the db/backup directory is extracted from the .tgz file.
+    All of the files in the 'files' directory are also backed up / restored.
     
     The default archive file is "db-backup.tgz" but any other one can be passed as an argument to both db:backup:write
     and db:backup:read, for example:
@@ -21,6 +22,11 @@ Gem::Specification.new do |s|
     app2$ rake db:backup:read[../app1/db-backup.tgz]
     
     The environment variable 'verbose' or 'VERBOSE' if defined will result in some verbose output.
+    
+    To add the rake tasks to your Rails app, simply install the gem, and then add the following line to your 'Rakefile':
+    
+        require 'rails-backup-migrate'
+    
     }
 
   s.rubyforge_project = "rails-backup-migrate"
