@@ -14,12 +14,12 @@ Gem::Specification.new do |s|
     When restoring, the db/backup directory is extracted from the .tgz file.
     All of the files in the 'files' directory are also backed up / restored.
     
-    The default archive file is "db-backup.tgz" but any other one can be passed as an argument to both db:backup:write
+    The default archive file is "site-backup.tgz" but any other one can be passed as an argument to both db:backup:write
     and db:backup:read, for example:
     
     app1$ rake db:backup:write
     app1$ cd ../app2
-    app2$ rake db:backup:read[../app1/db-backup.tgz]
+    app2$ rake db:backup:read[../app1/site-backup.tgz]
     
     The environment variable 'verbose' or 'VERBOSE' if defined will result in some verbose output.
     

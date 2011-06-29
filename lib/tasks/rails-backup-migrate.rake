@@ -27,7 +27,7 @@ namespace :site do
     
     # private task: finalise the archive, used as a dependency after :_save_db_to_yml and/or :_save_db_schema
     task :_finish_archive, [:backup_file] => []  do |t, args|
-      args.with_defaults(:backup_file => "db-backup.tgz")
+      args.with_defaults(:backup_file => "site-backup.tgz")
       RailsBackupMigrate.create_archive args.backup_file
       RailsBackupMigrate.clean_up
     end
@@ -38,19 +38,19 @@ namespace :site do
       RailsBackupMigrate.add_to_archive "files"
     end
     
-    desc "Dump schema to a backup file. Default backup = 'db-backup.tgz'."
+    desc "Dump schema to a backup file. Default backup = 'site-backup.tgz'."
     task :schema, [:backup_file] => [:_save_db_schema, :_finish_archive] do |t, args|
     end
     
-    desc "Dump schema and entire db in YML files to a backup file. Default backup = 'db-backup.tgz'"
+    desc "Dump schema and entire db in YML files to a backup file. Default backup = 'site-backup.tgz'"
     task :db, [:backup_file] => [:_save_db_schema, :_save_db_to_yml, :_finish_archive] do |t, args|
     end
     
-    desc "Archive all files in the `files` directory into a backup file. Default backup = 'db-backup.tgz'"
+    desc "Archive all files in the `files` directory into a backup file. Default backup = 'site-backup.tgz'"
     task :files, [:backup_file] => [:_add_files_directory_to_archive, :_finish_archive] do |t,args|
     end
     
-    desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'db-backup.tgz'"
+    desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'site-backup.tgz'"
     task :all, [:backup_file] => [:_save_db_schema, :_save_db_to_yml, :_add_files_directory_to_archive, :_finish_archive] do |t, args|
     end
     
@@ -61,7 +61,7 @@ namespace :site do
     
     # private task: set the backup file to the parameter passed to rake, or the default. Saves the absolute path for later.
     task :_set_backup_file, [:backup_file] => [:environment] do |t, args|
-      args.with_defaults(:backup_file => "db-backup.tgz")
+      args.with_defaults(:backup_file => "site-backup.tgz")
       
       abort "File does not exist" unless
         File.exist? args.backup_file
@@ -95,7 +95,7 @@ namespace :site do
       `tar #{options} #{RailsBackupMigrate.backup_file} files`
     end
     
-    desc "Erase and reload db schema from backup file. Default backup file is 'db-backup.tgz'. Runs `rake db:schema:load`."
+    desc "Erase and reload db schema from backup file. Default backup file is 'site-backup.tgz'. Runs `rake db:schema:load`."
     task :schema, [:backup_file] => [:_restore_db_schema, 'db:schema:load'] do |t, args|
       RailsBackupMigrate.clean_up
     end
@@ -105,14 +105,14 @@ namespace :site do
       RailsBackupMigrate.clean_up
     end
     
-    desc "Erase and reload db schema and data from backup filem, and restore all files in the 'files' directory. Default backup file is 'db-backup.tgz'. Runs `rake db:schema:load`."
+    desc "Erase and reload db schema and data from backup filem, and restore all files in the 'files' directory. Default backup file is 'site-backup.tgz'. Runs `rake db:schema:load`."
     task :all, [:backup_file] => [:_set_backup_file, :_restore_db_from_yml, :_restore_files_directory] do |t,args|
       RailsBackupMigrate.clean_up
     end
     
   end
   
-  desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'db-backup.tgz'"
+  desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'site-backup.tgz'"
   task :backup, [:backup_file] => 'backup:all' do
   end
   
