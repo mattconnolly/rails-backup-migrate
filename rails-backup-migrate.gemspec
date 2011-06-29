@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
     app1$ cd ../app2
     app2$ rake db:backup:read[../app1/db-backup.tgz]
     
+    The environment variable 'verbose' or 'VERBOSE' if defined will result in some verbose output.
     }
 
   s.rubyforge_project = "rails-backup-migrate"

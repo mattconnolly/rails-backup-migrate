@@ -1,12 +1,29 @@
+#
+# @file lib/rails-backup-migrate.rb
+#
+# @author Matt Connolly
+# @copyright 2011 Matt Connolly
+#
+# This file defines the core of the backup functionality as singleton methods in a Module which
+# is used by the rake task.
+#
+# When required by a Rakefile, this file also loads the rake tasks in lib/tasks/rails-backup-migrate.rake
+#
+
 require "rails-backup-migrate/version"
 require 'tmpdir'
 require 'fileutils'
+
 
 module RailsBackupMigrate
   @archive_file = nil
   @files_to_archive = []
   
-  puts "Now self is '#{self.inspect}', of type '#{self.class}'"
+  if ENV['verbose'] || ENV['VERBOSE']
+    VERBOSE = true
+  else
+    VERBOSE = false
+  end
   
   # singleton methods for Module `RailsBackupMigrate`
   class << self
@@ -51,7 +68,7 @@ module RailsBackupMigrate
     
     # delete any working files
     def clean_up
-      puts "cleaning up."
+      puts "cleaning up." if VERBOSE
       FileUtils.rmtree temp_dir
       @temp_dir = nil
       @files_to_delete_on_cleanup ||= []
@@ -65,19 +82,9 @@ module RailsBackupMigrate
       @files_to_delete_on_cleanup = []
     end
     
-    # expand an archive, expects an absolute path to the .tgz file
-    def extract_archive backup_file
-      puts "extracting archive..."
-      puts "listing files..."
-      files = ``
-      # add the yml files to a delete
-      Dir.chdir temp_dir
-      `tar -xzf #{backup_file}`
-    end
-    
     # create the archive .tgz file in the requested location
     def create_archive backup_file
-      puts "creating archive..."
+      puts "creating archive..." if VERBOSE
       absolute = File::expand_path backup_file
       Dir::chdir RAILS_ROOT
       `tar -czf #{absolute} #{files_to_archive.join ' '}`
@@ -93,7 +100,7 @@ module RailsBackupMigrate
       @files_to_delete_on_cleanup ||= []
       
       interesting_tables.each do |tbl|
-        puts "Writing #{tbl}..."
+        puts "Writing #{tbl}..." if VERBOSE
         File.open("#{tbl}.yml", 'w+') { |f| YAML.dump ActiveRecord::Base.connection.select_all("SELECT * FROM #{tbl}"), f }
         @files_to_delete_on_cleanup << File::expand_path("#{tbl}.yml")
       end
@@ -111,7 +118,7 @@ module RailsBackupMigrate
 
         ActiveRecord::Base.transaction do 
         
-          puts "Loading #{tbl}..."
+          puts "Loading #{tbl}..." if VERBOSE
           YAML.load_file("#{tbl}.yml").each do |fixture|
             ActiveRecord::Base.connection.execute "INSERT INTO #{tbl} (#{fixture.keys.join(",")}) VALUES (#{fixture.values.collect { |value| ActiveRecord::Base.connection.quote(value) }.join(",")})", 'Fixture Insert'
           end        

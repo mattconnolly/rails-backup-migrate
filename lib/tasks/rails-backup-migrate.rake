@@ -15,14 +15,13 @@ namespace :site do
     
     # private task: save the db/schema.rb file, calls 'db:schema:dump' as a dependency
     task :_save_db_schema, [:backup_file] => [:environment, 'db:schema:dump'] do |t, args|
-      puts "adding db/schema.rb to archive list."
+      puts "adding db/schema.rb to archive list." if RailsBackupMigrate::VERBOSE
       Dir::chdir RAILS_ROOT
       RailsBackupMigrate.add_to_archive 'db/schema.rb'
     end
     
     # private task: save the database tables to yml files
     task :_save_db_to_yml, [:backup_file] => [:environment] do |t, args|
-      puts "_save_db_to_yml"
       RailsBackupMigrate.save_db_to_yml
     end
     
@@ -33,14 +32,26 @@ namespace :site do
       RailsBackupMigrate.clean_up
     end
     
-    desc "Dump schema to a backup file. Default backup = 'db-backup.tgz'."
-    task :schema, [:backup_file] => [:_save_db_schema, :_finish_archive] do |t, args|
-      puts "nothing really left to do :)"
+    # private task: add the `files` directory to the archive
+    task :_add_files_directory_to_archive, [:backup_file] do |t, args|
+      puts "adding 'files' dir to archive list." if RailsBackupMigrate::VERBOSE
+      RailsBackupMigrate.add_to_archive "files"
     end
     
-    desc "Dump schema and entire db in YML files to a backup file. Default backup = 'db-backup.tgz'."
+    desc "Dump schema to a backup file. Default backup = 'db-backup.tgz'."
+    task :schema, [:backup_file] => [:_save_db_schema, :_finish_archive] do |t, args|
+    end
+    
+    desc "Dump schema and entire db in YML files to a backup file. Default backup = 'db-backup.tgz'"
     task :db, [:backup_file] => [:_save_db_schema, :_save_db_to_yml, :_finish_archive] do |t, args|
-      puts "nothing really left to do :)"
+    end
+    
+    desc "Archive all files in the `files` directory into a backup file. Default backup = 'db-backup.tgz'"
+    task :files, [:backup_file] => [:_add_files_directory_to_archive, :_finish_archive] do |t,args|
+    end
+    
+    desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'db-backup.tgz'"
+    task :all, [:backup_file] => [:_save_db_schema, :_save_db_to_yml, :_add_files_directory_to_archive, :_finish_archive] do |t, args|
     end
     
   end
@@ -50,7 +61,6 @@ namespace :site do
     
     # private task: set the backup file to the parameter passed to rake, or the default. Saves the absolute path for later.
     task :_set_backup_file, [:backup_file] => [:environment] do |t, args|
-      puts "setting backup file"
       args.with_defaults(:backup_file => "db-backup.tgz")
       
       abort "File does not exist" unless
@@ -61,51 +71,53 @@ namespace :site do
     
     # private task: restore db/schema.rb, expected to be a dependency before 'db:schema:load'
     task :_restore_db_schema, [:backup_file] => [:_set_backup_file] do |t, args|[]
-      puts "restoring db/schema.rb from archive."
+      puts "restoring db/schema.rb from archive." if RailsBackupMigrate::VERBOSE
       Dir::chdir RAILS_ROOT
       # extract the schema.rb file in place
-      `tar -xzf #{RailsBackupMigrate.backup_file} db/schema.rb`
+      options = RailsBackupMigrate::VERBOSE ? '-xvzf' : '-xzf'
+      `tar #{options} #{RailsBackupMigrate.backup_file} db/schema.rb`
     end
     
     # private task: restore the database tables from yml files
     task :_restore_db_from_yml, [:backup_file] => [:_restore_db_schema, 'db:schema:load'] do |t, args|
-      puts "_restore_db_from_yml"
       Dir::chdir RailsBackupMigrate.temp_dir
       # extract the yml files
-      `tar -xzf #{RailsBackupMigrate.backup_file} 'db/backup/*.yml'`
+      options = RailsBackupMigrate::VERBOSE ? '-xvzf' : '-xzf'
+      `tar #{options} #{RailsBackupMigrate.backup_file} 'db/backup/*.yml'`
       RailsBackupMigrate.restore_db_from_yml
+    end
+    
+    # private task: restore 'files' directory. Should we delete the contents of it?? not for now...
+    task :_restore_files_directory, [:backup_file] => [:_set_backup_file] do |t, args|
+      Dir::chdir RAILS_ROOT
+      # extract the 'files' directory in place
+      options = RailsBackupMigrate::VERBOSE ? '-xvzf' : '-xzf'
+      `tar #{options} #{RailsBackupMigrate.backup_file} files`
     end
     
     desc "Erase and reload db schema from backup file. Default backup file is 'db-backup.tgz'. Runs `rake db:schema:load`."
     task :schema, [:backup_file] => [:_restore_db_schema, 'db:schema:load'] do |t, args|
-      puts "nothing really left to do :)"
       RailsBackupMigrate.clean_up
     end
     
-    desc "Erase and reload entire db. Runs `rake db:schema:load`."
+    desc "Erase and reload entire db schema and data from backup file. Runs `rake db:schema:load`."
     task :db, [:backup_file] => [:_restore_db_from_yml] do |t, args|
       RailsBackupMigrate.clean_up
     end
-  
-    desc "Print out some debug info"
-    task :debug do |t, args|
-      puts self
-      p "self.inspect = #{self.inspect}"
-      self_class = (class << self ; self end)
-      p "class << self = #{self_class}"
-      puts "\n\nThese are the files to backup:\n#{RailsBackupMigrate.files_to_archive.join "\n"}"
+    
+    desc "Erase and reload db schema and data from backup filem, and restore all files in the 'files' directory. Default backup file is 'db-backup.tgz'. Runs `rake db:schema:load`."
+    task :all, [:backup_file] => [:_set_backup_file, :_restore_db_from_yml, :_restore_files_directory] do |t,args|
+      RailsBackupMigrate.clean_up
     end
     
   end
   
-  desc "Dump schema and entire db in YML files to a backup file. Default backup = 'db-backup.tgz'."
-  task :backup => 'backup:db' do
-    puts "default task"
+  desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'db-backup.tgz'"
+  task :backup, [:backup_file] => 'backup:all' do
   end
   
   desc "Erase and reload entire db. Runs `rake db:schema:load`."
-  task :restore => 'restore:db' do
-    puts "default task"
+  task :restore, [:backup_file] => 'restore:all' do
   end 
   
 end
