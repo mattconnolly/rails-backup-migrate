@@ -31,6 +31,8 @@ h2. Compatibility
 
 Tested initially on 'redmine' using rails 2.3.11 and some simpler tests with rails 3. Has been tested with MySQL and Sqlite3 databases. Further testing with postgres to be done.
 
+This requires a system with access to the `tar` command in your path. (Easy for Mac & *nixes, may require a posix environment such as cygwin under Windows.)
+
 h2. Contributors
 
 Matt Connolly - main author of gem

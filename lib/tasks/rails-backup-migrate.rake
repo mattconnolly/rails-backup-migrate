@@ -50,10 +50,14 @@ namespace :site do
     task :files, [:backup_file] => [:_add_files_directory_to_archive, :_finish_archive] do |t,args|
     end
     
-    desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'site-backup.tgz'"
-    task :all, [:backup_file] => [:_save_db_schema, :_save_db_to_yml, :_add_files_directory_to_archive, :_finish_archive] do |t, args|
-    end
-    
+  end
+  
+  desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'site-backup.tgz'"
+  task :backup, [:backup_file] => [
+    'site:backup:_save_db_schema', 
+    'site:backup:_save_db_to_yml', 
+    'site:backup:_add_files_directory_to_archive',
+    'site:backup:_finish_archive'] do
   end
   
   
@@ -100,24 +104,24 @@ namespace :site do
       RailsBackupMigrate.clean_up
     end
     
-    desc "Erase and reload entire db schema and data from backup file. Runs `rake db:schema:load`."
+    desc "Erase and reload entire db schema and data from backup file. Runs `rake db:schema:load`. Runs `rake db:schema:load`"
     task :db, [:backup_file] => [:_restore_db_from_yml] do |t, args|
       RailsBackupMigrate.clean_up
     end
     
-    desc "Erase and reload db schema and data from backup filem, and restore all files in the 'files' directory. Default backup file is 'site-backup.tgz'. Runs `rake db:schema:load`."
-    task :all, [:backup_file] => [:_set_backup_file, :_restore_db_from_yml, :_restore_files_directory] do |t,args|
+    desc "Restore all files in the 'files' directory. Default backup file is 'site-backup.tgz'."
+    task :files, [:backup_file] => [:_restore_files_directory] do |t,args|
       RailsBackupMigrate.clean_up
     end
     
   end
   
-  desc "Backup everything: schema, database to yml, and all files in 'files' directory. Default backup file is 'site-backup.tgz'"
-  task :backup, [:backup_file] => 'backup:all' do
-  end
-  
-  desc "Erase and reload entire db. Runs `rake db:schema:load`."
-  task :restore, [:backup_file] => 'restore:all' do
+  desc "Erase and reload db schema and data from backup files, and restore all files in the 'files' directory. Default backup file is 'site-backup.tgz'. Runs `rake db:schema:load`."
+  task :restore, [:backup_file] => [
+    'site:restore:_restore_db_schema',
+    'db:schema:load',
+    'site:restore:_restore_db_from_yml',
+    'site:restore:_restore_files_directory'] do
   end 
   
 end
