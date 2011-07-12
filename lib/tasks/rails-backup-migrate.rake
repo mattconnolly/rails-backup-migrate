@@ -87,7 +87,7 @@ namespace :site do
       Dir::chdir RailsBackupMigrate.temp_dir
       # extract the yml files
       options = RailsBackupMigrate::VERBOSE ? '-xvzf' : '-xzf'
-      `tar #{options} #{RailsBackupMigrate.backup_file} 'db/backup/*.yml'`
+      `tar #{options} #{RailsBackupMigrate.backup_file} 'db/backup'`
       RailsBackupMigrate.restore_db_from_yml
     end
     
