@@ -1,0 +1,8 @@
+*0.0.7 (2011-07-17)*
+
+* Removed wildcard path when using `tar` to load database files as this required an option for GnuTar but not on BSD Tar. [Matt Connolly]
+
+*0.0.6 (2011-06-29)*
+
+* Initial public release [Matt Connolly]
+
