@@ -35,7 +35,11 @@ namespace :site do
     # private task: add the `files` directory to the archive
     task :_add_files_directory_to_archive, [:backup_file] do |t, args|
       puts "adding 'files' dir to archive list." if RailsBackupMigrate::VERBOSE
-      RailsBackupMigrate.add_to_archive "files"
+      if (File.exist?("files") && File.directory?("files"))
+        RailsBackupMigrate.add_to_archive "files" 
+      else
+        puts "Warning, cannot archive 'files' directory, it does not exist." if RailsBackupMigrate::VERBOSE
+      end
     end
     
     desc "Dump schema to a backup file. Default backup = 'site-backup.tgz'."
@@ -95,8 +99,16 @@ namespace :site do
     task :_restore_files_directory, [:backup_file] => [:_set_backup_file] do |t, args|
       Dir::chdir RAILS_ROOT
       # extract the 'files' directory in place
-      options = RailsBackupMigrate::VERBOSE ? '-xvzf' : '-xzf'
-      `tar #{options} #{RailsBackupMigrate.backup_file} files`
+      
+      # check if there is 'files/' in the archive file (perhaps this app doesn't have downloads)
+      # fixing issue #2 on github.
+      `tar -tzf #{RailsBackupMigrate.backup_file} | grep '^files/'`
+      if $? == 0
+        options = RailsBackupMigrate::VERBOSE ? '-xvzf' : '-xzf'
+        `tar #{options} #{RailsBackupMigrate.backup_file} files`
+      else
+        puts "Warning: cannot extract 'files', not in archive" if RailsBackupMigrate::VERBOSE
+      end
     end
     
     desc "Erase and reload db schema from backup file. Default backup file is 'site-backup.tgz'. Runs `rake db:schema:load`."
