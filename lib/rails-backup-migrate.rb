@@ -10,7 +10,7 @@
 # When required by a Rakefile, this file also loads the rake tasks in lib/tasks/rails-backup-migrate.rake
 #
 
-require "rails-backup-migrate/version"
+require "#{File.dirname(__FILE__)}/rails-backup-migrate/version"
 require 'tmpdir'
 require 'fileutils'
 
