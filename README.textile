@@ -33,6 +33,10 @@ Tested initially on 'redmine' using rails 2.3.11 and some simpler tests with rai
 
 This requires a system with access to the `tar` command in your path. (Easy for Mac & *nixes, may require a posix environment such as cygwin under Windows.)
 
+h3. Known Issues:
+
+- under ruby 1.9.2, the YAML export (in the `rake site:backup` task fails extended characters in ASCII to UTF8 conversion) (Github Issue #4)
+
 h2. Contributors
 
 Matt Connolly - main author of gem
