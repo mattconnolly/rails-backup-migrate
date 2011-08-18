@@ -25,7 +25,7 @@ h2. More info
 
 The backup file can be specified with a command line argument in rake's (wierd) format:
 
-<pre></code>  $ rake site:backup[/path/to/file.tgz]</code></pre>
+<pre><code>  $ rake site:backup[/path/to/file.tgz]</code></pre>
 
 h2. Compatibility
 
