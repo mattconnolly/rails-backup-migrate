@@ -31,11 +31,13 @@ h2. Compatibility
 
 Tested initially on 'redmine' using rails 2.3.11 and some simpler tests with rails 3. Has been tested with MySQL and Sqlite3 databases. Further testing with postgres to be done.
 
+Also tested with a dummy rails 3.0 app using sqlite3 driver in ruby 1.8.7, 1.9.2 and jruby 1.6.2.
+
 This requires a system with access to the `tar` command in your path. (Easy for Mac & *nixes, may require a posix environment such as cygwin under Windows.)
 
 h3. Known Issues:
 
-- under ruby 1.9.2, the YAML export (in the `rake site:backup` task fails extended characters in ASCII to UTF8 conversion) (Github Issue #4)
+- under ruby 1.9.2, the YAML export (in the `rake site:backup` task fails extended characters in ASCII to UTF8 conversion) (Github Issue #4) Changes made in 0.0.9 that look like this is fixed - any help regressing is welcome!
 
 h2. Contributors
 
