@@ -1,3 +1,4 @@
+# encoding: UTF-8
 #
 # @file lib/tasks/rails-backup-migrate.rake
 #

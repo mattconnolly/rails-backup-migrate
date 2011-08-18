@@ -1,3 +1,4 @@
+# encoding: UTF-8
 #
 # @file lib/rails-backup-migrate.rb
 #
@@ -101,7 +102,7 @@ module RailsBackupMigrate
       
       interesting_tables.each do |tbl|
         puts "Writing #{tbl}..." if VERBOSE
-        File.open("#{tbl}.yml", 'w+') { |f| YAML.dump ActiveRecord::Base.connection.select_all("SELECT * FROM #{tbl}"), f }
+        File.open("#{tbl}.yml", 'w+') { |f| f << YAML.dump(ActiveRecord::Base.connection.select_all("SELECT * FROM #{tbl}")) }
         @files_to_delete_on_cleanup << File::expand_path("#{tbl}.yml")
       end
       
