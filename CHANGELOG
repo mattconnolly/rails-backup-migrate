@@ -1,3 +1,11 @@
+*0.0.9 (2011-08-18)*
+
+* Improvements to help with character set issues in Ruby 1.9.2
+
+*0.0.8 (2011-07-25)*
+
+* Added check to only include 'files' directory if it is used by the rails app.
+
 *0.0.7 (2011-07-17)*
 
 * Removed wildcard path when using `tar` to load database files as this required an option for GnuTar but not on BSD Tar. [Matt Connolly]
