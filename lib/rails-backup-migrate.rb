@@ -20,12 +20,13 @@ module RailsBackupMigrate
   @archive_file = nil
   @files_to_archive = []
   
-  if ENV['verbose'] || ENV['VERBOSE']
-    VERBOSE = true
-  else
-    VERBOSE = false
-  end
-  
+  VERBOSE =
+      if ENV['verbose'] || ENV['VERBOSE']
+        true
+      else
+        false
+      end
+
   # singleton methods for Module `RailsBackupMigrate`
   class << self
     attr_accessor :backup_file
