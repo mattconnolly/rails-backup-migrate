@@ -17,7 +17,7 @@ namespace :site do
     # private task: save the db/schema.rb file, calls 'db:schema:dump' as a dependency
     task :_save_db_schema, [:backup_file] => [:environment, 'db:schema:dump'] do |t, args|
       puts "adding db/schema.rb to archive list." if RailsBackupMigrate::VERBOSE
-      Dir::chdir RAILS_ROOT
+      Dir::chdir Rails.root
       RailsBackupMigrate.add_to_archive 'db/schema.rb'
     end
     
@@ -81,7 +81,7 @@ namespace :site do
     # private task: restore db/schema.rb, expected to be a dependency before 'db:schema:load'
     task :_restore_db_schema, [:backup_file] => [:_set_backup_file] do |t, args|[]
       puts "restoring db/schema.rb from archive." if RailsBackupMigrate::VERBOSE
-      Dir::chdir RAILS_ROOT
+      Dir::chdir Rails.root
       # extract the schema.rb file in place
       options = RailsBackupMigrate::VERBOSE ? '-xvzf' : '-xzf'
       `tar #{options} #{RailsBackupMigrate.backup_file} db/schema.rb`
@@ -98,7 +98,7 @@ namespace :site do
     
     # private task: restore 'files' directory. Should we delete the contents of it?? not for now...
     task :_restore_files_directory, [:backup_file] => [:_set_backup_file] do |t, args|
-      Dir::chdir RAILS_ROOT
+      Dir::chdir Rails.root
       # extract the 'files' directory in place
       
       # check if there is 'files/' in the archive file (perhaps this app doesn't have downloads)

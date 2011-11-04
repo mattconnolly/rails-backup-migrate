@@ -37,15 +37,15 @@ module RailsBackupMigrate
       end
     end
     
-    # add a path to be archived. Expected path to be relative to RAILS_ROOT. This is where the archive
+    # add a path to be archived. Expected path to be relative to Rails.root. This is where the archive
     # will be created so that uploaded files (the 'files' dir) can be reference in place without needing to be copied.
     def add_to_archive path
-      # check it's relative to RAILS_ROOT
+      # check it's relative to Rails.root
       raise "File '#{path}' does not exist" unless File::exist? path
       
-      if File::expand_path(path).start_with? RAILS_ROOT
-        # remove RAILS_ROOT from absolute path
-        relative = File::expand_path(path).sub(RAILS_ROOT,'')
+      if File::expand_path(path).start_with? Rails.root
+        # remove Rails.root from absolute path
+        relative = File::expand_path(path).sub(Rails.root,'')
         # remove leading slash
         relative.gsub! /^#{File::SEPARATOR}/,''
         # add to list
@@ -87,14 +87,14 @@ module RailsBackupMigrate
     def create_archive backup_file
       puts "creating archive..." if VERBOSE
       absolute = File::expand_path backup_file
-      Dir::chdir RAILS_ROOT
+      Dir::chdir Rails.root
       `tar -czf #{absolute} #{files_to_archive.join ' '}`
     end
     
     
     # save the required database tables to .yml files in a folder 'yml' and add them to the backup
     def save_db_to_yml
-      FileUtils.chdir RAILS_ROOT
+      FileUtils.chdir Rails.root
       FileUtils.mkdir_p 'db/backup'
       FileUtils.chdir 'db/backup'
       
@@ -107,7 +107,7 @@ module RailsBackupMigrate
       end
       
       # simply add the whole yml folder to the archive
-      FileUtils.chdir RAILS_ROOT
+      FileUtils.chdir Rails.root
       add_to_archive 'db/backup'
     end
     
