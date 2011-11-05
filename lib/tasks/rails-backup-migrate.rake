@@ -18,6 +18,10 @@ namespace :site do
     task :_save_db_schema, [:backup_file] => [:environment, 'db:schema:dump'] do |t, args|
       puts "adding db/schema.rb to archive list." if RailsBackupMigrate::VERBOSE
       Dir::chdir Rails.root
+      if RailsBackupMigrate::VERBOSE
+        puts "Checking if the db/schema file exists: " + (File.exist?('db/schema.rb') ? 'YES' : 'NO')
+        puts "Full path expands to: " + File.expand_path('db/schema.rb')
+      end
       RailsBackupMigrate.add_to_archive 'db/schema.rb'
     end
     

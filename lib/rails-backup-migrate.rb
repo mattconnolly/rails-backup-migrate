@@ -41,15 +41,17 @@ module RailsBackupMigrate
     # will be created so that uploaded files (the 'files' dir) can be reference in place without needing to be copied.
     def add_to_archive path
       # check it's relative to Rails.root
-      raise "File '#{path}' does not exist" unless File::exist? path
+      raise "File '#{path}' does not exist" unless File.exist? path
       
-      if File::expand_path(path).start_with? Rails.root
-        # remove Rails.root from absolute path
-        relative = File::expand_path(path).sub(Rails.root,'')
-        # remove leading slash
-        relative.gsub! /^#{File::SEPARATOR}/,''
+      expanded_path = File.expand_path(path)
+      if expanded_path.start_with?(rails_root.to_s)
+        # remove rails_root from absolute path
+        relative = expanded_path.sub(rails_root + File::SEPARATOR,'')
         # add to list
+        puts "Adding relative path: '#{relative}'" if VERBOSE
         @files_to_archive << relative
+      else
+        raise "Cannot add a file that is not under Rails root directory. (#{expanded_path} not under #{rails_root})"
       end
     end
   
@@ -87,14 +89,14 @@ module RailsBackupMigrate
     def create_archive backup_file
       puts "creating archive..." if VERBOSE
       absolute = File::expand_path backup_file
-      Dir::chdir Rails.root
+      Dir::chdir rails_root
       `tar -czf #{absolute} #{files_to_archive.join ' '}`
     end
     
     
     # save the required database tables to .yml files in a folder 'yml' and add them to the backup
     def save_db_to_yml
-      FileUtils.chdir Rails.root
+      FileUtils.chdir rails_root
       FileUtils.mkdir_p 'db/backup'
       FileUtils.chdir 'db/backup'
       
@@ -107,7 +109,7 @@ module RailsBackupMigrate
       end
       
       # simply add the whole yml folder to the archive
-      FileUtils.chdir Rails.root
+      FileUtils.chdir rails_root
       add_to_archive 'db/backup'
     end
     
@@ -125,6 +127,12 @@ module RailsBackupMigrate
           end        
         end
       end
+    end
+    
+    def rails_root
+      # in ruby 1.9.3, `Rails.root` is a Pathname object, that plays mess with string comparisons
+      # so we'll ensure we have a string
+      Rails.root.to_s
     end
   end
 end
