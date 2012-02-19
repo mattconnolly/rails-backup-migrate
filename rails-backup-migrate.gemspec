@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = RailsBackupMigrate::VERSION
   s.authors     = ["Matt Connolly"]
   s.email       = ["matt@soundevolution.com.au"]
-  s.homepage    = ""
+  s.homepage    = "http://github.com/mattconnolly/rails-backup-migrate"
   s.summary     = %q{Backup and restore a rails application including database data and files}
   s.description = %q{Creates a directory db/backup in the rails app and creates / loads YML files from there. 
     After a backup, the db/backups directory is archived into a .tgz file and then deleted.
