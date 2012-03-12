@@ -34,7 +34,7 @@ module RailsBackupMigrate
     # list the tables we should backup, excluding ones we can ignore
     def interesting_tables
       ActiveRecord::Base.connection.tables.sort.reject do |tbl|
-        ['schema_migrations', 'sessions', 'public_exceptions'].include?(tbl)
+        %w(schema_migrations sessions public_exceptions).include?(tbl)
       end
     end
     
@@ -77,10 +77,10 @@ module RailsBackupMigrate
       @temp_dir = nil
       @files_to_delete_on_cleanup ||= []
       @files_to_delete_on_cleanup.each do |f|
-        unless File::directory? f
-          FileUtils.rm f
-        else
+        if File::directory? f
           FileUtils.rm_r f
+        else
+          FileUtils.rm f
         end
       end
       @files_to_delete_on_cleanup = []
