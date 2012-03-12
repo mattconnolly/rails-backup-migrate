@@ -102,10 +102,30 @@ module RailsBackupMigrate
       FileUtils.chdir 'db/backup'
       
       @files_to_delete_on_cleanup ||= []
-      
+
+      @mysql = ActiveRecord::Base.connection.class.to_s =~ /mysql/i
+
       interesting_tables.each do |tbl|
         puts "Writing #{tbl}..." if VERBOSE
-        File.open("#{tbl}.yml", 'w+') { |f| f << YAML.dump(ActiveRecord::Base.connection.select_all("SELECT * FROM #{tbl}")) }
+        File.open("#{tbl}.yml", 'w+') do |f|
+          records = ActiveRecord::Base.connection.select_all("SELECT * FROM #{tbl}")
+          if @mysql
+            # we need to convert Mysql::Time objects into standard ruby time objects because they do not serialise
+            # into YAML on their own at all, let alone in a way that would be compatible with other databases
+            records.map! do |record|
+              record.inject({}) do |memo, (k,v)|
+                memo[k] = case v
+                            when Mysql::Time
+                              datetime_from_mysql_time v
+                            else
+                              v
+                          end
+                memo
+              end
+            end
+          end
+          f << YAML.dump(records)
+        end
         @files_to_delete_on_cleanup << File::expand_path("#{tbl}.yml")
       end
       
@@ -135,6 +155,16 @@ module RailsBackupMigrate
       # so we'll ensure we have a string
       Rails.root.to_s
     end
+
+    private
+
+    def datetime_from_mysql_time(mysql_time)
+        year = mysql_time.year
+        month = [1,mysql_time.month].max
+        day = [1,mysql_time.day].max
+        DateTime.new year, month, day, mysql_time.hour, mysql_time.minute, mysql_time.second
+    end
+
   end
 end
 
