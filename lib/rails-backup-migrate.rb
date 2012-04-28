@@ -114,8 +114,8 @@ module RailsBackupMigrate
             # into YAML on their own at all, let alone in a way that would be compatible with other databases
             records.map! do |record|
               record.inject({}) do |memo, (k,v)|
-                memo[k] = case v
-                            when Mysql::Time
+                memo[k] = case v.class.name
+                            when "Mysql::Time"
                               datetime_from_mysql_time v
                             else
                               v
