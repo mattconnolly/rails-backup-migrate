@@ -114,8 +114,8 @@ module RailsBackupMigrate
             # into YAML on their own at all, let alone in a way that would be compatible with other databases
             records.map! do |record|
               record.inject({}) do |memo, (k,v)|
-                memo[k] = case v
-                            when Mysql::Time
+                memo[k] = case v.class.name
+                            when "Mysql::Time"
                               datetime_from_mysql_time v
                             else
                               v
@@ -144,7 +144,7 @@ module RailsBackupMigrate
         
           puts "Loading #{tbl}..." if VERBOSE
           YAML.load_file("#{tbl}.yml").each do |fixture|
-            ActiveRecord::Base.connection.execute "INSERT INTO #{tbl} (#{fixture.keys.join(",")}) VALUES (#{fixture.values.collect { |value| ActiveRecord::Base.connection.quote(value) }.join(",")})", 'Fixture Insert'
+            ActiveRecord::Base.connection.execute "INSERT INTO #{tbl} (#{fixture.keys.map{|k| "`#{k}`"}.join(",")}) VALUES (#{fixture.values.collect { |value| ActiveRecord::Base.connection.quote(value) }.join(",")})", 'Fixture Insert'
           end        
         end
       end
