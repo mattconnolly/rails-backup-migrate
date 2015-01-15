@@ -144,7 +144,7 @@ module RailsBackupMigrate
         
           puts "Loading #{tbl}..." if VERBOSE
           YAML.load_file("#{tbl}.yml").each do |fixture|
-            ActiveRecord::Base.connection.execute "INSERT INTO #{tbl} (#{fixture.keys.map{|k| "`#{k}`"}.join(",")}) VALUES (#{fixture.values.collect { |value| ActiveRecord::Base.connection.quote(value) }.join(",")})", 'Fixture Insert'
+            ActiveRecord::Base.connection.execute "INSERT INTO #{tbl} (#{fixture.keys.map{|k| "#{k}"}.join(",")}) VALUES (#{fixture.values.collect { |value| ActiveRecord::Base.connection.quote(value) }.join(",")})", 'Fixture Insert'
           end        
         end
       end
