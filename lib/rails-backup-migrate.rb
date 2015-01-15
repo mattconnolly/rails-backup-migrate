@@ -34,7 +34,7 @@ module RailsBackupMigrate
     # list the tables we should backup, excluding ones we can ignore
     def interesting_tables
       ActiveRecord::Base.connection.tables.sort.reject do |tbl|
-        %w(schema_migrations sessions public_exceptions).include?(tbl)
+        %w(schema_migrations sessions public_exceptions backups).include?(tbl)
       end
     end
     
@@ -144,7 +144,7 @@ module RailsBackupMigrate
         
           puts "Loading #{tbl}..." if VERBOSE
           YAML.load_file("#{tbl}.yml").each do |fixture|
-            ActiveRecord::Base.connection.execute "INSERT INTO #{tbl} (#{fixture.keys.map{|k| "`#{k}`"}.join(",")}) VALUES (#{fixture.values.collect { |value| ActiveRecord::Base.connection.quote(value) }.join(",")})", 'Fixture Insert'
+            ActiveRecord::Base.connection.execute "INSERT INTO #{tbl} (#{fixture.keys.map{|k| "#{k}"}.join(",")}) VALUES (#{fixture.values.collect { |value| ActiveRecord::Base.connection.quote(value) }.join(",")})", 'Fixture Insert'
           end        
         end
       end
