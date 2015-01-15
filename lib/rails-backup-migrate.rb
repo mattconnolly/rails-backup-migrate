@@ -34,7 +34,7 @@ module RailsBackupMigrate
     # list the tables we should backup, excluding ones we can ignore
     def interesting_tables
       ActiveRecord::Base.connection.tables.sort.reject do |tbl|
-        %w(schema_migrations sessions public_exceptions).include?(tbl)
+        %w(schema_migrations sessions public_exceptions backups).include?(tbl)
       end
     end
     
